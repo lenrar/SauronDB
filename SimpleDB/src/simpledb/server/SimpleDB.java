@@ -1,13 +1,11 @@
 package simpledb.server;
 
+import simpledb.buffer.BufferMgr;
 import simpledb.file.FileMgr;
-import simpledb.buffer.*;
-import simpledb.tx.Transaction;
 import simpledb.log.LogMgr;
 import simpledb.metadata.MetadataMgr;
 import simpledb.planner.*;
-import simpledb.opt.HeuristicQueryPlanner;
-import simpledb.index.planner.IndexUpdatePlanner;
+import simpledb.tx.Transaction;
 
 /**
  * The class that provides system-wide static global values.
@@ -76,8 +74,11 @@ public class SimpleDB {
     * @param dirname the name of the database directory
     */
    public static void initFileLogAndBufferMgr(String dirname) {
-      initFileAndLogMgr(dirname);
+      // TODO: Make bufferMgr initialize before logMgr
+//      initFileAndLogMgr(dirname);
+      fm = new FileMgr(dirname);
       bm = new BufferMgr(BUFFER_SIZE);
+      logm = new LogMgr(LOG_FILE);
    }
    
    /**
