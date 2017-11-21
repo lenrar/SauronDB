@@ -187,4 +187,14 @@ public class Buffer {
       blk = contents.append(filename);
       pins = 0;
    }
+
+   /**
+    * DUSTIN WROTE THIS
+    * Returns the number of pins in the buffer
+    */
+
+   public int getPins() {
+      return pins;
+   }
+
 }

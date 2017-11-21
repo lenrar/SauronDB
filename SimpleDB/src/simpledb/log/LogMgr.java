@@ -4,6 +4,7 @@ import simpledb.buffer.Buffer;
 import simpledb.buffer.BufferMgr;
 import simpledb.file.Block;
 import simpledb.file.FileMgr;
+import simpledb.file.Page;
 import simpledb.server.SimpleDB;
 
 import java.util.Iterator;
@@ -201,13 +202,21 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       currentpos += INT_SIZE;
    }
 
-   private void printLogPageBuffer(){
+   private void printLogPageBuffer(Buffer buffer){
       //TODO: DUZN
 //      Write   a   method   called   “ printLogPageBuffer() ”   and   call   it   to   output   the   log   page   on   the console.   The   output   can   be   in   the   following   format.
-      Buffer   number   pinned   to   the   log   block:   xxx
-      Contents   of   buffer   xxx:
-
+//      Buffer   number   pinned   to   the   log   block:   xxx
+//      Contents   of   buffer   xxx:
 //      Verify  if  the  contents  of  the  buffer  are    as  expected  based  on  the  updates  made  using setInt()   and   setString()   methods.
+
+//      private Page contents = new Page();
+//      private Block blk = null;
+//      private int pins = 0;
+//      private int modifiedBy = -1;  // negative means not modified
+//      private int logSequenceNumber = -1; // negative means no corresponding log record
+
+      System.out.println("Buffer number pinned to the log block: " + buffer.getPins());
+
 
    }
 
