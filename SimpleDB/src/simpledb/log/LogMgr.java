@@ -1,8 +1,9 @@
 package simpledb.log;
 
+import simpledb.buffer.Buffer;
+import simpledb.buffer.BufferMgr;
 import simpledb.file.Block;
 import simpledb.file.FileMgr;
-import simpledb.file.Page;
 import simpledb.server.SimpleDB;
 
 import java.util.Iterator;
@@ -29,9 +30,16 @@ public class LogMgr implements Iterable<BasicLogRecord> {
 
    private String logfile;
    // TODO: Make this a buffer buf
-   private Page mypage = new Page();
+//   private Page mypage = new Page();
+   private Buffer mybuf;
+   private BufferMgr bufferMgr = SimpleDB.bufferMgr();
+
+   // TODO: Make a Log Formatter
+   private LogFormatter fmtr = new LogFormatter();
+
    private Block currentblk;
    private int currentpos;
+
 
    /**
     * Creates the manager for the specified log file.
@@ -55,7 +63,8 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       } else {
          currentblk = new Block(logfile, logsize - 1);
          // TODO: buf.pin(currentblk)
-         mypage.read(currentblk);
+//         mypage.read(currentblk);
+         mybuf = bufferMgr.pin(currentblk);
          currentpos = getLastRecordPosition() + INT_SIZE;
       }
    }
@@ -99,7 +108,7 @@ public class LogMgr implements Iterable<BasicLogRecord> {
          recsize += size(obj);
       if (currentpos + recsize >= BLOCK_SIZE) { // the log record doesn't fit,
          // TODO: flush() will not be necessary
-         flush();        // so move to the next block.
+//         flush();        // so move to the next block.
          appendNewBlock();
       }
       for (Object obj : rec) {
@@ -117,11 +126,13 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     */
    private void appendVal(Object val) {
       if (val instanceof String) {
-         // TODO: buf.setInt(currentpos, (String) val, currentLSN(), -1)
-         mypage.setString(currentpos, (String) val);
+         // TODO: buf.setString(currentpos, (String) val, currentLSN(), -1)
+//         mypage.setString(currentpos, (String) val);
+         mybuf.setString(currentpos, (String) val, currentLSN(), -1);
       } else {
          // TODO: buf.setInt(currentpos, (Integer) val, currentLSN(), -1)
-         mypage.setInt(currentpos, (Integer) val);
+//         mypage.setInt(currentpos, (Integer) val);
+         mybuf.setInt(currentpos, (Integer) val, currentLSN(), -1);
       }
       currentpos += size(val);
    }
@@ -156,7 +167,8 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     */
    private void flush() {
       // TODO: buffMgr.flushAll(currentLSN())
-      mypage.write(currentblk);
+//      mypage.write(currentblk);
+      bufferMgr.flushAll(currentLSN());
    }
 
    /**
@@ -167,7 +179,11 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       currentpos = INT_SIZE;
       // TODO: buf.pinNew(logfile, LogFormatter)
       // TODO: Make LogFormatter
-      currentblk = mypage.append(logfile);
+//      currentblk = mypage.append(logfile);
+      if (mybuf != null) {
+         bufferMgr.unpin(mybuf);
+      }
+      mybuf = bufferMgr.pinNew(logfile, fmtr);
    }
 
    /**
@@ -179,18 +195,21 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     */
    private void finalizeRecord() {
       // TODO: buf.setInt(currentpos, getLastRecordPosition(), currentLSN(), -1)
-      mypage.setInt(currentpos, getLastRecordPosition());
+//      mypage.setInt(currentpos, getLastRecordPosition());
+      mybuf.setInt(currentpos, getLastRecordPosition(), currentLSN(), -1);
       setLastRecordPosition(currentpos);
       currentpos += INT_SIZE;
    }
 
    private int getLastRecordPosition() {
       // TODO: buf.getInt(LAST_POS)
-      return mypage.getInt(LAST_POS);
+//      return mypage.getInt(LAST_POS);
+      return mybuf.getInt(LAST_POS);
    }
 
    private void setLastRecordPosition(int pos) {
       // TODO: buf.setInt(LAST_POS, pos, currentLSN(), -1)
-      mypage.setInt(LAST_POS, pos);
+//      mypage.setInt(LAST_POS, pos);
+      mybuf.setInt(LAST_POS, pos, currentLSN(), -1);
    }
 }

@@ -1,6 +1,6 @@
 package simpledb.log;
 
-import simpledb.file.Page;
+import simpledb.buffer.Buffer;
 
 import static simpledb.file.Page.INT_SIZE;
 import static simpledb.file.Page.STR_SIZE;
@@ -17,19 +17,22 @@ import static simpledb.file.Page.STR_SIZE;
  * @author Edward Sciore
  */
 public class BasicLogRecord {
-   private Page pg;
+   // TODO: Convert this to a buffer
+//   private Page pg;
+   private Buffer buf;
    private int pos;
    
    /**
     * A log record located at the specified position of the specified page.
     * This constructor is called exclusively by
     * {@link LogIterator#next()}.
-    * @param pg the page containing the log record
+    * @param buf the page containing the log record
     * @param pos the position of the log record 
     */
-   public BasicLogRecord(Page pg, int pos) {
+   public BasicLogRecord(Buffer buf, int pos) {
       // TODO: Instead this needs to take in a buffer, and set a buffer
-      this.pg = pg;
+//      this.pg = pg;
+      this.buf = buf;
       this.pos = pos;
    }
    
@@ -40,7 +43,8 @@ public class BasicLogRecord {
     */
    public int nextInt() {
       // TODO: Buffer.getInt(pos)
-      int result = pg.getInt(pos);
+//      int result = pg.getInt(pos);
+      int result = buf.getInt(pos);
       pos += INT_SIZE;
       return result;
    }
@@ -52,7 +56,8 @@ public class BasicLogRecord {
     */
    public String nextString() {
       // TODO: Buffer.getString
-      String result = pg.getString(pos);
+//      String result = pg.getString(pos);
+      String result = buf.getString(pos);
       pos += STR_SIZE(result.length());
       return result;
    }
