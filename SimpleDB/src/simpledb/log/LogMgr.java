@@ -162,6 +162,16 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       currentpos += INT_SIZE;
    }
 
+   private void printLogPageBuffer(){
+      //TODO: DUZN
+//      Write   a   method   called   “ printLogPageBuffer() ”   and   call   it   to   output   the   log   page   on   the console.   The   output   can   be   in   the   following   format.
+      Buffer   number   pinned   to   the   log   block:   xxx
+      Contents   of   buffer   xxx:
+
+//      Verify  if  the  contents  of  the  buffer  are    as  expected  based  on  the  updates  made  using setInt()   and   setString()   methods.
+
+   }
+
    private int getLastRecordPosition() {
       return mypage.getInt(LAST_POS);
    }
