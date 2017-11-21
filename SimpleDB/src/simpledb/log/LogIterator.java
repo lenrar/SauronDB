@@ -1,8 +1,11 @@
 package simpledb.log;
 
-import static simpledb.file.Page.INT_SIZE;
-import simpledb.file.*;
+import simpledb.file.Block;
+import simpledb.file.Page;
+
 import java.util.Iterator;
+
+import static simpledb.file.Page.INT_SIZE;
 
 /**
  * A class that provides the ability to move through the
@@ -12,6 +15,7 @@ import java.util.Iterator;
  */
 class LogIterator implements Iterator<BasicLogRecord> {
    private Block blk;
+   // TODO:  This should be a buffer
    private Page pg = new Page();
    private int currentrec;
    
@@ -22,8 +26,10 @@ class LogIterator implements Iterator<BasicLogRecord> {
     * {@link LogMgr#iterator()}.
     */
    LogIterator(Block blk) {
+      // TODO: buf.pin(blk)
       this.blk = blk;
       pg.read(blk);
+      // TODO: buf.getInt()
       currentrec = pg.getInt(LogMgr.LAST_POS);
    }
    
@@ -46,6 +52,7 @@ class LogIterator implements Iterator<BasicLogRecord> {
    public BasicLogRecord next() {
       if (currentrec == 0) 
          moveToNextBlock();
+      // TODO: buf.getInt()
       currentrec = pg.getInt(currentrec);
       return new BasicLogRecord(pg, currentrec+INT_SIZE);
    }
@@ -60,7 +67,9 @@ class LogIterator implements Iterator<BasicLogRecord> {
     */
    private void moveToNextBlock() {
       blk = new Block(blk.fileName(), blk.number()-1);
+      // TODO: buf.pin(blk)
       pg.read(blk);
+      // TODO: buf.getInt()
       currentrec = pg.getInt(LogMgr.LAST_POS);
    }
 }

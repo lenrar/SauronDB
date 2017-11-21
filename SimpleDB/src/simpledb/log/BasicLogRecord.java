@@ -1,7 +1,9 @@
 package simpledb.log;
 
-import static simpledb.file.Page.*;
 import simpledb.file.Page;
+
+import static simpledb.file.Page.INT_SIZE;
+import static simpledb.file.Page.STR_SIZE;
 
 /**
  * A class that provides the ability to read the values of
@@ -26,6 +28,7 @@ public class BasicLogRecord {
     * @param pos the position of the log record 
     */
    public BasicLogRecord(Page pg, int pos) {
+      // TODO: Instead this needs to take in a buffer, and set a buffer
       this.pg = pg;
       this.pos = pos;
    }
@@ -36,6 +39,7 @@ public class BasicLogRecord {
     * @return the next value of the current log record
     */
    public int nextInt() {
+      // TODO: Buffer.getInt(pos)
       int result = pg.getInt(pos);
       pos += INT_SIZE;
       return result;
@@ -47,6 +51,7 @@ public class BasicLogRecord {
     * @return the next value of the current log record
     */
    public String nextString() {
+      // TODO: Buffer.getString
       String result = pg.getString(pos);
       pos += STR_SIZE(result.length());
       return result;
