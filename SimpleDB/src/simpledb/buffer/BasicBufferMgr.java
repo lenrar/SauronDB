@@ -14,6 +14,7 @@ class BasicBufferMgr {
    private Map<Block, Buffer> bufferPoolMap;
    private Buffer[] bufferpool;
    private int numAvailable;
+   private int newBuffers;
    
    /**
     * Creates a buffer manager having the specified number 
@@ -30,10 +31,12 @@ class BasicBufferMgr {
     */
    BasicBufferMgr(int numbuffs) {
       bufferPoolMap = new HashMap<>();
-      bufferpool = new Buffer[numbuffs];
+      numAvailable = numbuffs;
+      newBuffers = numbuffs;
+      /*bufferpool = new Buffer[numbuffs];
       numAvailable = numbuffs;
       for (int i=0; i<numbuffs; i++)
-         bufferpool[i] = new Buffer();
+         bufferpool[i] = new Buffer();*/
    }
    
    /**
@@ -41,9 +44,15 @@ class BasicBufferMgr {
     * @param txnum the transaction's id number
     */
    synchronized void flushAll(int txnum) {
-      for (Buffer buff : bufferpool)
+      for (Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
+         Buffer buff = entry.getValue();
+         if (buff.isModifiedBy(txnum))
+            buff.flush();
+      }
+      /*for (Buffer buff : bufferpool)
          if (buff.isModifiedBy(txnum))
          buff.flush(); // write back to block
+         */
    }
    
    /**
@@ -57,6 +66,17 @@ class BasicBufferMgr {
     */
    synchronized Buffer pin(Block blk) {
       Buffer buff = findExistingBuffer(blk);
+
+      /*if (buff == null) {
+         if (numAvailable > 0) {
+            buff = new Buffer();
+            numAvailable--;
+         } else {
+            return null;
+         }
+
+      }*/
+
       if (buff == null) {
          buff = chooseUnpinnedBuffer();
          if (buff == null)
@@ -127,18 +147,36 @@ class BasicBufferMgr {
    }
    
    private Buffer findExistingBuffer(Block blk) {
-      for (Buffer buff : bufferpool) {
+      for (Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
+         Block b = entry.getKey();
+         if(b!= null && b.equals(blk)) {
+            return entry.getValue(); // return buffer
+         }
+      }
+
+      return null;
+      /*for (Buffer buff : bufferpool) {
          Block b = buff.block();
          if (b != null && b.equals(blk))
             return buff;
       }
-      return null;
+      return null;*/
    }
    
    private Buffer chooseUnpinnedBuffer() {
-      for (Buffer buff : bufferpool)
+
+      for(Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
+         Buffer buff = entry.getValue();
+         if (!buff.isPinned()) {
+            bufferPoolMap.remove(entry.getKey());
+            return buff;
+         }
+      }
+
+      return null;
+      /*for (Buffer buff : bufferpool)
          if (!buff.isPinned())
          return buff;
-      return null;
+      return null;*/
    }
 }
