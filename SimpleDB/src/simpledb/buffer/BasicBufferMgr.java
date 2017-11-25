@@ -66,17 +66,6 @@ class BasicBufferMgr {
     */
    synchronized Buffer pin(Block blk) {
       Buffer buff = findExistingBuffer(blk);
-
-      /*if (buff == null) {
-         if (numAvailable > 0) {
-            buff = new Buffer();
-            numAvailable--;
-         } else {
-            return null;
-         }
-
-      }*/
-
       if (buff == null) {
          buff = chooseUnpinnedBuffer();
          if (buff == null)
@@ -165,12 +154,17 @@ class BasicBufferMgr {
    
    private Buffer chooseUnpinnedBuffer() {
 
-      for(Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
+      for (Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
          Buffer buff = entry.getValue();
          if (!buff.isPinned()) {
             bufferPoolMap.remove(entry.getKey());
             return buff;
          }
+      }
+
+      if (newBuffers > 0) {
+         newBuffers--;
+         return new Buffer();
       }
 
       return null;
