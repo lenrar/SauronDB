@@ -2,12 +2,16 @@ package simpledb.buffer;
 
 import simpledb.file.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Manages the pinning and unpinning of buffers to blocks.
  * @author Edward Sciore
  *
  */
 class BasicBufferMgr {
+   private Map<Block, Buffer> bufferPoolMap;
    private Buffer[] bufferpool;
    private int numAvailable;
    
@@ -25,6 +29,7 @@ class BasicBufferMgr {
     * @param numbuffs the number of buffer slots to allocate
     */
    BasicBufferMgr(int numbuffs) {
+      bufferPoolMap = new HashMap<>();
       bufferpool = new Buffer[numbuffs];
       numAvailable = numbuffs;
       for (int i=0; i<numbuffs; i++)
@@ -38,7 +43,7 @@ class BasicBufferMgr {
    synchronized void flushAll(int txnum) {
       for (Buffer buff : bufferpool)
          if (buff.isModifiedBy(txnum))
-         buff.flush();
+         buff.flush(); // write back to block
    }
    
    /**
@@ -92,6 +97,26 @@ class BasicBufferMgr {
       if (!buff.isPinned())
          numAvailable++;
    }
+
+   /**
+    *   Determines whether the map has a mapping from
+    *   the block to some buffer.
+    *   @paramblk the block to use as a key
+    *   @return true if there is a mapping; false otherwise
+    */
+   synchronized boolean containsMapping (Block blk) {
+      return bufferPoolMap.containsKey(blk);
+   }
+
+   /**
+    *   Returns the buffer that the map maps the specified block to.
+    *   @paramblk the block to use as a key
+    *   @return the buffer mapped to if there is a mapping; null otherwise */
+   synchronized Buffer getMapping (Block blk)   {
+      return bufferPoolMap.get(blk);
+   }
+
+
    
    /**
     * Returns the number of available (i.e. unpinned) buffers.

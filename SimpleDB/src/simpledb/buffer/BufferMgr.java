@@ -101,6 +101,24 @@ public class BufferMgr {
       if (!buff.isPinned())
          notifyAll();
    }
+
+   /**
+    *   Determines whether the map has a mapping from
+    *   the block to some buffer.
+    *   @paramblk the block to use as a key
+    *   @return true if there is a mapping;   false otherwise
+    */
+   public synchronized boolean containsMapping (Block blk) {
+      return bufferMgr.containsMapping(blk);
+   }
+
+   /**
+    *   Returns the buffer that the map maps the specified block to.
+    *   @paramblk the block to use as a key
+    *   @return the buffer mapped to if there is a mapping;   null otherwise */
+   public Buffer getMapping (Block blk) {
+      return bufferMgr.getMapping(blk);
+   }
    
    /**
     * Flushes the dirty buffers modified by the specified transaction.
