@@ -202,9 +202,39 @@ public class Buffer {
     * @author
     */
    void updateAccessTime() {
-      long timestamp = System.currentTimeMillis();
+      //long timestamp = System.currentTimeMillis();
+      long timestamp = System.nanoTime();
       secLastAccessTime = lastAccessTime;
       lastAccessTime = timestamp;
+   }
+
+   /**
+    * Add a function getLastAccessTime()
+    * get lastAccessTime
+    * @author
+    */
+
+   long getLastAccessTime() {
+      return lastAccessTime;
+   }
+
+   /**
+    * Add a function getSecLastAccessTime()
+    * get secLastAccessTime
+    * @author
+    */
+   long getSecLastAccessTime() {
+      return secLastAccessTime;
+   }
+
+   /**
+    * Add a function resetAccessTime()
+    * Reset access time to MAX_VALUE
+    * @author
+    */
+   void resetAccessTime() {
+      lastAccessTime = Long.MAX_VALUE;
+      secLastAccessTime = Long.MAX_VALUE;
    }
 
    /**
