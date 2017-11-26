@@ -1,6 +1,7 @@
 package simpledb.buffer;
 
 import simpledb.file.*;
+import simpledb.server.SimpleDB;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map;
  *
  */
 class BasicBufferMgr {
+   private FileMgr fileMgr;
    private Map<Block, Buffer> bufferPoolMap;
    private Buffer[] bufferpool;
    private int numAvailable;
@@ -31,6 +33,7 @@ class BasicBufferMgr {
     */
    BasicBufferMgr(int numbuffs) {
       bufferPoolMap = new HashMap<>();
+      fileMgr = SimpleDB.fileMgr();
       numAvailable = numbuffs;
       newBuffers = numbuffs;
       /*bufferpool = new Buffer[numbuffs];
@@ -95,6 +98,10 @@ class BasicBufferMgr {
       buff.assignToNew(filename, fmtr);
       numAvailable--;
       buff.pin();
+
+      Block newBlk = new Block(filename, fileMgr.size(filename));
+      bufferPoolMap.put(newBlk, buff);
+
       return buff;
    }
    
@@ -137,14 +144,7 @@ class BasicBufferMgr {
    }
    
    private Buffer findExistingBuffer(Block blk) {
-      for (Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
-         Block b = entry.getKey();
-         if(b!= null && b.equals(blk)) {
-            return entry.getValue(); // return buffer
-         }
-      }
-
-      return null;
+      return getMapping(blk);
       /*for (Buffer buff : bufferpool) {
          Block b = buff.block();
          if (b != null && b.equals(blk))
