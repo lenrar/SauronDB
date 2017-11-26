@@ -74,6 +74,7 @@ class BasicBufferMgr {
       }
       if (!buff.isPinned())
          numAvailable--;
+      bufferPoolMap.put(blk, buff);
       buff.pin();
       return buff;
    }
