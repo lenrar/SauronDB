@@ -77,8 +77,14 @@ class BasicBufferMgr {
       }
       if (!buff.isPinned())
          numAvailable--;
-      bufferPoolMap.put(blk, buff);
       buff.pin();
+      /**
+       * put this mapping into bufferPoolMap
+       * update access time
+       * @author
+       */
+      bufferPoolMap.put(blk, buff);
+      buff.updateAccessTime();
       return buff;
    }
    
@@ -101,6 +107,7 @@ class BasicBufferMgr {
 
       Block newBlk = new Block(filename, fileMgr.size(filename));
       bufferPoolMap.put(newBlk, buff);
+      buff.updateAccessTime();
 
       return buff;
    }
