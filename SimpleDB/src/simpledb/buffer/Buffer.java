@@ -20,6 +20,13 @@ public class Buffer {
    private int pins = 0;
    private int modifiedBy = -1;  // negative means not modified
    private int logSequenceNumber = -1; // negative means no corresponding log record
+   /**
+    * Add two variables to record last/second last access time,
+    * initialized to infinity
+    * @author
+    */
+   private long lastAccessTime = Long.MAX_VALUE;
+   private long secLastAccessTime = Long.MAX_VALUE;
 
    /**
     * Creates a new buffer, wrapping a new 
@@ -187,6 +194,17 @@ public class Buffer {
       fmtr.format(contents);
       blk = contents.append(filename);
       pins = 0;
+   }
+
+   /**
+    * Add a function updateAccessTime()
+    * Update access time when a buffer is pinned
+    * @author
+    */
+   void updateAccessTime() {
+      long timestamp = System.currentTimeMillis();
+      secLastAccessTime = lastAccessTime;
+      lastAccessTime = timestamp;
    }
 
    /**

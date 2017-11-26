@@ -1,6 +1,10 @@
 package simpledb.buffer;
 
 import simpledb.file.*;
+import simpledb.server.SimpleDB;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manages the pinning and unpinning of buffers to blocks.
@@ -8,8 +12,11 @@ import simpledb.file.*;
  *
  */
 class BasicBufferMgr {
+   private FileMgr fileMgr;
+   private Map<Block, Buffer> bufferPoolMap;
    private Buffer[] bufferpool;
    private int numAvailable;
+   private int newBuffers;
    
    /**
     * Creates a buffer manager having the specified number 
@@ -25,10 +32,14 @@ class BasicBufferMgr {
     * @param numbuffs the number of buffer slots to allocate
     */
    BasicBufferMgr(int numbuffs) {
-      bufferpool = new Buffer[numbuffs];
+      bufferPoolMap = new HashMap<>();
+      fileMgr = SimpleDB.fileMgr();
+      numAvailable = numbuffs;
+      newBuffers = numbuffs;
+      /*bufferpool = new Buffer[numbuffs];
       numAvailable = numbuffs;
       for (int i=0; i<numbuffs; i++)
-         bufferpool[i] = new Buffer();
+         bufferpool[i] = new Buffer();*/
    }
    
    /**
@@ -36,9 +47,15 @@ class BasicBufferMgr {
     * @param txnum the transaction's id number
     */
    synchronized void flushAll(int txnum) {
-      for (Buffer buff : bufferpool)
+      for (Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
+         Buffer buff = entry.getValue();
          if (buff.isModifiedBy(txnum))
-         buff.flush();
+            buff.flush();
+      }
+      /*for (Buffer buff : bufferpool)
+         if (buff.isModifiedBy(txnum))
+         buff.flush(); // write back to block
+         */
    }
    
    /**
@@ -61,6 +78,13 @@ class BasicBufferMgr {
       if (!buff.isPinned())
          numAvailable--;
       buff.pin();
+      /**
+       * put this mapping into bufferPoolMap
+       * update access time
+       * @author
+       */
+      bufferPoolMap.put(blk, buff);
+      buff.updateAccessTime();
       return buff;
    }
    
@@ -80,6 +104,11 @@ class BasicBufferMgr {
       buff.assignToNew(filename, fmtr);
       numAvailable--;
       buff.pin();
+
+      Block newBlk = new Block(filename, fileMgr.size(filename));
+      bufferPoolMap.put(newBlk, buff);
+      buff.updateAccessTime();
+
       return buff;
    }
    
@@ -92,6 +121,26 @@ class BasicBufferMgr {
       if (!buff.isPinned())
          numAvailable++;
    }
+
+   /**
+    *   Determines whether the map has a mapping from
+    *   the block to some buffer.
+    *   @paramblk the block to use as a key
+    *   @return true if there is a mapping; false otherwise
+    */
+   synchronized boolean containsMapping (Block blk) {
+      return bufferPoolMap.containsKey(blk);
+   }
+
+   /**
+    *   Returns the buffer that the map maps the specified block to.
+    *   @paramblk the block to use as a key
+    *   @return the buffer mapped to if there is a mapping; null otherwise */
+   synchronized Buffer getMapping (Block blk)   {
+      return bufferPoolMap.get(blk);
+   }
+
+
    
    /**
     * Returns the number of available (i.e. unpinned) buffers.
@@ -102,18 +151,34 @@ class BasicBufferMgr {
    }
    
    private Buffer findExistingBuffer(Block blk) {
-      for (Buffer buff : bufferpool) {
+      return getMapping(blk);
+      /*for (Buffer buff : bufferpool) {
          Block b = buff.block();
          if (b != null && b.equals(blk))
             return buff;
       }
-      return null;
+      return null;*/
    }
    
    private Buffer chooseUnpinnedBuffer() {
-      for (Buffer buff : bufferpool)
+
+      for (Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
+         Buffer buff = entry.getValue();
+         if (!buff.isPinned()) {
+            bufferPoolMap.remove(entry.getKey());
+            return buff;
+         }
+      }
+
+      if (newBuffers > 0) {
+         newBuffers--;
+         return new Buffer();
+      }
+
+      return null;
+      /*for (Buffer buff : bufferpool)
          if (!buff.isPinned())
          return buff;
-      return null;
+      return null;*/
    }
 }
