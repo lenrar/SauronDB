@@ -1,6 +1,11 @@
 package simpledb.buffer;
 
 import simpledb.file.*;
+import simpledb.server.SimpleDB;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manages the pinning and unpinning of buffers to blocks.
@@ -8,8 +13,11 @@ import simpledb.file.*;
  *
  */
 class BasicBufferMgr {
+   private FileMgr fileMgr;
+   private Map<Block, Buffer> bufferPoolMap;
    private Buffer[] bufferpool;
    private int numAvailable;
+   private int newBuffers;
    
    /**
     * Creates a buffer manager having the specified number 
@@ -25,10 +33,14 @@ class BasicBufferMgr {
     * @param numbuffs the number of buffer slots to allocate
     */
    BasicBufferMgr(int numbuffs) {
-      bufferpool = new Buffer[numbuffs];
+      bufferPoolMap = new HashMap<>();
+      fileMgr = SimpleDB.fileMgr();
+      numAvailable = numbuffs;
+      newBuffers = numbuffs;
+      /*bufferpool = new Buffer[numbuffs];
       numAvailable = numbuffs;
       for (int i=0; i<numbuffs; i++)
-         bufferpool[i] = new Buffer();
+         bufferpool[i] = new Buffer();*/
    }
    
    /**
@@ -36,9 +48,15 @@ class BasicBufferMgr {
     * @param txnum the transaction's id number
     */
    synchronized void flushAll(int txnum) {
-      for (Buffer buff : bufferpool)
+      for (Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
+         Buffer buff = entry.getValue();
          if (buff.isModifiedBy(txnum))
-         buff.flush();
+            buff.flush();
+      }
+      /*for (Buffer buff : bufferpool)
+         if (buff.isModifiedBy(txnum))
+         buff.flush(); // write back to block
+         */
    }
    
    /**
@@ -61,6 +79,13 @@ class BasicBufferMgr {
       if (!buff.isPinned())
          numAvailable--;
       buff.pin();
+      /**
+       * put this mapping into bufferPoolMap
+       * update access time
+       * @author
+       */
+      bufferPoolMap.put(blk, buff);
+      buff.updateAccessTime();
       return buff;
    }
    
@@ -80,6 +105,11 @@ class BasicBufferMgr {
       buff.assignToNew(filename, fmtr);
       numAvailable--;
       buff.pin();
+
+      Block newBlk = new Block(filename, fileMgr.size(filename));
+      bufferPoolMap.put(newBlk, buff);
+      buff.updateAccessTime();
+
       return buff;
    }
    
@@ -92,6 +122,24 @@ class BasicBufferMgr {
       if (!buff.isPinned())
          numAvailable++;
    }
+
+   /**
+    *   Determines whether the map has a mapping from
+    *   the block to some buffer.
+    *   @paramblk the block to use as a key
+    *   @return true if there is a mapping; false otherwise
+    */
+   synchronized boolean containsMapping (Block blk) {
+      return bufferPoolMap.containsKey(blk);
+   }
+
+   /**
+    *   Returns the buffer that the map maps the specified block to.
+    *   @paramblk the block to use as a key
+    *   @return the buffer mapped to if there is a mapping; null otherwise */
+   synchronized Buffer getMapping (Block blk)   {
+      return bufferPoolMap.get(blk);
+   }
    
    /**
     * Returns the number of available (i.e. unpinned) buffers.
@@ -102,18 +150,102 @@ class BasicBufferMgr {
    }
    
    private Buffer findExistingBuffer(Block blk) {
-      for (Buffer buff : bufferpool) {
+      return getMapping(blk);
+      /*for (Buffer buff : bufferpool) {
          Block b = buff.block();
          if (b != null && b.equals(blk))
             return buff;
       }
-      return null;
+      return null;*/
    }
    
    private Buffer chooseUnpinnedBuffer() {
-      for (Buffer buff : bufferpool)
+
+      // If there is a buffer slot available, return this buffer
+      if (newBuffers > 0) {
+         newBuffers--;
+         return new Buffer();
+      }
+
+      // No slot available, replace a unpinned buffer
+      ArrayList<Block> unpinnedBufferBlockList = new ArrayList<>();
+      for (Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
+         Buffer buff = entry.getValue();
+         if (!buff.isPinned()) {
+            //bufferPoolMap.remove(entry.getKey());
+            unpinnedBufferBlockList.add(entry.getKey());
+            //return buff;
+         }
+      }
+      // No unpinned buffer
+      if (unpinnedBufferBlockList.size() == 0) {
+         return null;
+      }
+      Block tmp = LRU2(unpinnedBufferBlockList);
+      Buffer buff = bufferPoolMap.get(tmp);
+      buff.resetAccessTime();
+      bufferPoolMap.remove(tmp);
+      return buff;
+
+      /*for (Buffer buff : bufferpool)
          if (!buff.isPinned())
          return buff;
-      return null;
+      return null;*/
+   }
+
+   /**
+    * Add a function LRU2()
+    * Choose replace buffer by using LRU(K=2)
+    * @author
+    */
+   private Block LRU2(ArrayList<Block> unpinnedBufferBlockList) {
+      int infiCount = 0;
+      long minLastAccTime = Long.MAX_VALUE;
+      long minSecLastAccTime = Long.MAX_VALUE;
+      int LRU2Index = -1;
+      int LRUIndex = -1;
+      /*
+      System.out.println(unpinnedBufferBlockList.size());
+      System.out.println(minLastAccTime);
+      System.out.println(minSecLastAccTime);
+      */
+
+      for (int i = 0; i < unpinnedBufferBlockList.size(); i++) {
+         Buffer buff = bufferPoolMap.get(unpinnedBufferBlockList.get(i));
+         /*
+         System.out.println("index: " + i);
+         System.out.print("last: " + buff.getLastAccessTime() + " ");
+         System.out.println("seclast: " + buff.getSecLastAccessTime());
+         */
+         if (buff.getSecLastAccessTime() <= minSecLastAccTime) {
+            minSecLastAccTime = buff.getSecLastAccessTime();
+            LRU2Index = i;
+            if (buff.getSecLastAccessTime() == Long.MAX_VALUE) {
+               infiCount++;
+            }
+         }
+
+         if (buff.getLastAccessTime() < minLastAccTime) {
+            minLastAccTime = buff.getLastAccessTime();
+            LRUIndex = i;
+         }
+         /*
+         System.out.print("minlast: " + minLastAccTime + " ");
+         System.out.println("minsec: " + minSecLastAccTime);
+         */
+      }
+      Block res;
+      /*
+      System.out.println("inficount: " + infiCount);
+      System.out.println("LRUIndex: " + LRUIndex);
+      System.out.println("LRU2Index: " + LRU2Index);
+      */
+      if (infiCount > 1) {
+         res = unpinnedBufferBlockList.get(LRUIndex);
+      }
+      else {
+         res = unpinnedBufferBlockList.get(LRU2Index);
+      }
+      return res;
    }
 }

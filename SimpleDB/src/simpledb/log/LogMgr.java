@@ -4,9 +4,16 @@ import simpledb.buffer.Buffer;
 import simpledb.buffer.BufferMgr;
 import simpledb.file.Block;
 import simpledb.file.FileMgr;
+import simpledb.file.Page;
 import simpledb.server.SimpleDB;
 
+
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
+
+// DUSTIN EXTRA IMPORT
+import java.nio.charset.Charset;
+import java.nio.ByteBuffer;
 
 import static simpledb.file.Page.*;
 
@@ -64,7 +71,9 @@ public class LogMgr implements Iterable<BasicLogRecord> {
          currentblk = new Block(logfile, logsize - 1);
          // TODO: buf.pin(currentblk)
 //         mypage.read(currentblk);
+         //printLogPageBuffer();
          mybuf = bufferMgr.pin(currentblk);
+         //printLogPageBuffer();
          currentpos = getLastRecordPosition() + INT_SIZE;
       }
    }
@@ -202,6 +211,39 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       mybuf.setInt(currentpos, getLastRecordPosition(), currentLSN(), -1);
       setLastRecordPosition(currentpos);
       currentpos += INT_SIZE;
+   }
+
+   private void printLogPageBuffer(){
+      //TODO: DUZN
+//      Write   a   method   called   “ printLogPageBuffer() ”   and   call   it   to   output   the   log   page   on   the console.   The   output   can   be   in   the   following   format.
+//      Buffer   number   pinned   to   the   log   block:   xxx
+//      Contents   of   buffer   xxx:
+//      Verify  if  the  contents  of  the  buffer  are    as  expected  based  on  the  updates  made  using setInt()   and   setString()   methods.
+
+//      private Page contents = new Page();
+//      private Block blk = null;
+//      private int pins = 0;
+//      private int modifiedBy = -1;  // negative means not modified
+//      private int logSequenceNumber = -1; // negative means no corresponding log record
+
+
+      System.out.println("----------------------------------------------");
+      System.out.println("  Buffer number pinned to the log block: " + mybuf.getPins());
+
+      ByteBuffer byteBuffer = mybuf.getContents();
+      byte[] bb = new byte[byteBuffer.remaining()];
+      String s = new String(bb, StandardCharsets.UTF_8);
+
+      System.out.println("  Contents of buffer:    " + s);
+      System.out.print("  Values of buffer ints: ");
+
+      for ( int i = 0; i < bb.length; i ++){
+         System.out.print(bb[i]);
+      }
+
+      System.out.println("");
+
+
    }
 
    private int getLastRecordPosition() {

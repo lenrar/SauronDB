@@ -2,6 +2,7 @@ package simpledb.buffer;
 
 import simpledb.server.SimpleDB;
 import simpledb.file.*;
+import java.nio.ByteBuffer;
 
 /**
  * An individual buffer.
@@ -19,6 +20,13 @@ public class Buffer {
    private int pins = 0;
    private int modifiedBy = -1;  // negative means not modified
    private int logSequenceNumber = -1; // negative means no corresponding log record
+   /**
+    * Add two variables to record last/second last access time,
+    * initialized to infinity
+    * @author
+    */
+   private long lastAccessTime = Long.MAX_VALUE;
+   private long secLastAccessTime = Long.MAX_VALUE;
 
    /**
     * Creates a new buffer, wrapping a new 
@@ -187,4 +195,62 @@ public class Buffer {
       blk = contents.append(filename);
       pins = 0;
    }
+
+   /**
+    * Add a function updateAccessTime()
+    * Update access time when a buffer is pinned
+    * @author
+    */
+   void updateAccessTime() {
+      //long timestamp = System.currentTimeMillis();
+      long timestamp = System.nanoTime();
+      secLastAccessTime = lastAccessTime;
+      lastAccessTime = timestamp;
+   }
+
+   /**
+    * Add a function getLastAccessTime()
+    * get lastAccessTime
+    * @author
+    */
+
+   long getLastAccessTime() {
+      return lastAccessTime;
+   }
+
+   /**
+    * Add a function getSecLastAccessTime()
+    * get secLastAccessTime
+    * @author
+    */
+   long getSecLastAccessTime() {
+      return secLastAccessTime;
+   }
+
+   /**
+    * Add a function resetAccessTime()
+    * Reset access time to MAX_VALUE
+    * @author
+    */
+   void resetAccessTime() {
+      lastAccessTime = Long.MAX_VALUE;
+      secLastAccessTime = Long.MAX_VALUE;
+   }
+
+   /**
+    * DUSTIN WROTE THIS
+    * Returns the number of pins in the buffer
+    */
+   public int getPins() {
+      return pins;
+   }
+    /**
+     * DUSTIN WROTE THIS
+     * Returns contents of the page
+     */
+    public ByteBuffer getContents(){
+        return contents.getContents();
+    }
+
+
 }
