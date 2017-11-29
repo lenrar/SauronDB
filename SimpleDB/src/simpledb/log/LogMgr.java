@@ -137,11 +137,11 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       if (val instanceof String) {
          // TODO: buf.setString(currentpos, (String) val, currentLSN(), -1)
 //         mypage.setString(currentpos, (String) val);
-         mybuf.setString(currentpos, (String) val, -1, -1);
+         mybuf.setString(currentpos, (String) val, currentLSN(), -1);
       } else {
          // TODO: buf.setInt(currentpos, (Integer) val, currentLSN(), -1)
 //         mypage.setInt(currentpos, (Integer) val);
-         mybuf.setInt(currentpos, (Integer) val, -1, -1);
+         mybuf.setInt(currentpos, (Integer) val, currentLSN(), -1);
       }
       currentpos += size(val);
    }
@@ -178,7 +178,7 @@ public class LogMgr implements Iterable<BasicLogRecord> {
    private void flush() {
       // TODO: buffMgr.flushAll(currentLSN())
 //      mypage.write(currentblk);
-      bufferMgr.flushAll(-1);
+      bufferMgr.flushAll(currentLSN());
    }
 
    /**
@@ -186,7 +186,6 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     */
    private void appendNewBlock() {
        // TODO: Not necessary to call setLastRecordPosition
-//      setLastRecordPosition(0);
       currentpos = INT_SIZE;
       // TODO: buf.pinNew(logfile, LogFormatter)
       // TODO: Make LogFormatter
@@ -196,6 +195,7 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       }
       mybuf = bufferMgr.pinNew(logfile, fmtr);
       currentblk = mybuf.block();
+      setLastRecordPosition(0);
    }
 
    /**
@@ -208,9 +208,7 @@ public class LogMgr implements Iterable<BasicLogRecord> {
    private void finalizeRecord() {
       // TODO: buf.setInt(currentpos, getLastRecordPosition(), currentLSN(), -1)
 //      mypage.setInt(currentpos, getLastRecordPosition());
-//      printLogPageBuffer();
-      mybuf.setInt(currentpos, getLastRecordPosition(), -1, -1);
-//      printLogPageBuffer();
+      mybuf.setInt(currentpos, getLastRecordPosition(), currentLSN(), -1);
       setLastRecordPosition(currentpos);
       currentpos += INT_SIZE;
    }
@@ -257,6 +255,6 @@ public class LogMgr implements Iterable<BasicLogRecord> {
    private void setLastRecordPosition(int pos) {
       // TODO: buf.setInt(LAST_POS, pos, currentLSN(), -1)
 //      mypage.setInt(LAST_POS, pos);
-      mybuf.setInt(LAST_POS, pos, -1, -1);
+      mybuf.setInt(LAST_POS, pos, currentLSN(), -1);
    }
 }
