@@ -220,15 +220,19 @@ class BasicBufferMgr {
          if (buff.getSecLastAccessTime() <= minSecLastAccTime) {
             minSecLastAccTime = buff.getSecLastAccessTime();
             LRU2Index = i;
-            if (buff.getSecLastAccessTime() == Long.MAX_VALUE) {
-               infiCount++;
+         }
+         if (buff.getSecLastAccessTime() == Long.MAX_VALUE) {
+            infiCount++;
+            if (buff.getLastAccessTime() < minLastAccTime) {
+               minLastAccTime = buff.getLastAccessTime();
+               LRUIndex = i;
             }
          }
 
-         if (buff.getLastAccessTime() < minLastAccTime) {
-            minLastAccTime = buff.getLastAccessTime();
-            LRUIndex = i;
-         }
+//         if (buff.getLastAccessTime() < minLastAccTime) {
+//            minLastAccTime = buff.getLastAccessTime();
+//            LRUIndex = i;
+//         }
          /*
          System.out.print("minlast: " + minLastAccTime + " ");
          System.out.println("minsec: " + minSecLastAccTime);
