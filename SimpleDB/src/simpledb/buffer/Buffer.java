@@ -2,6 +2,7 @@ package simpledb.buffer;
 
 import simpledb.server.SimpleDB;
 import simpledb.file.*;
+import java.nio.ByteBuffer;
 
 /**
  * An individual buffer.
@@ -235,4 +236,21 @@ public class Buffer {
       lastAccessTime = Long.MAX_VALUE;
       secLastAccessTime = Long.MAX_VALUE;
    }
+
+   /**
+    * DUSTIN WROTE THIS
+    * Returns the number of pins in the buffer
+    */
+   public int getPins() {
+      return pins;
+   }
+    /**
+     * DUSTIN WROTE THIS
+     * Returns contents of the page
+     */
+    public ByteBuffer getContents(){
+        return contents.getContents();
+    }
+
+
 }

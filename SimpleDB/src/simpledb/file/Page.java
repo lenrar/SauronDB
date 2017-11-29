@@ -67,6 +67,11 @@ public class Page {
    }
    
    private ByteBuffer contents = ByteBuffer.allocateDirect(BLOCK_SIZE);
+
+   public ByteBuffer getContents() {
+      return contents;
+   }
+
    private FileMgr filemgr = SimpleDB.fileMgr();
    
    /**

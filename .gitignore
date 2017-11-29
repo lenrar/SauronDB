@@ -144,4 +144,11 @@ fabric.properties
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+# Dustin Stuff
+CSC540_BufferManagerProject2_F2017.docx.pdf
+Updated_Project 2 - Appendix Fall 17.pdf
+lectures_v.pdf
+.DS_Store
+
+
 # End of https://www.gitignore.io/api/java,eclipse,intellij+all
