@@ -244,7 +244,7 @@ class BasicBufferMgr {
       System.out.println("LRUIndex: " + LRUIndex);
       System.out.println("LRU2Index: " + LRU2Index);
       */
-      if (infiCount > 1) {
+      if (infiCount >= 1) {
          res = unpinnedBufferBlockList.get(LRUIndex);
       }
       else {
