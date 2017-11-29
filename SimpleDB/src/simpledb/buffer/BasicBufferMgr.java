@@ -1,7 +1,7 @@
 package simpledb.buffer;
 
-import simpledb.file.*;
-import simpledb.server.SimpleDB;
+import simpledb.file.Block;
+import simpledb.file.FileMgr;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,28 +13,26 @@ import java.util.Map;
  *
  */
 class BasicBufferMgr {
-   private FileMgr fileMgr;
    private Map<Block, Buffer> bufferPoolMap;
    private Buffer[] bufferpool;
    private int numAvailable;
    private int newBuffers;
-   
+
    /**
-    * Creates a buffer manager having the specified number 
+    * Creates a buffer manager having the specified number
     * of buffer slots.
     * This constructor depends on both the {@link FileMgr} and
-    * {@link simpledb.log.LogMgr LogMgr} objects 
+    * {@link simpledb.log.LogMgr LogMgr} objects
     * that it gets from the class
     * {@link simpledb.server.SimpleDB}.
     * Those objects are created during system initialization.
-    * Thus this constructor cannot be called until 
+    * Thus this constructor cannot be called until
     * {@link simpledb.server.SimpleDB#initFileAndLogMgr(String)} or
     * is called first.
     * @param numbuffs the number of buffer slots to allocate
     */
    BasicBufferMgr(int numbuffs) {
       bufferPoolMap = new HashMap<>();
-      fileMgr = SimpleDB.fileMgr();
       numAvailable = numbuffs;
       newBuffers = numbuffs;
       /*bufferpool = new Buffer[numbuffs];
@@ -42,7 +40,7 @@ class BasicBufferMgr {
       for (int i=0; i<numbuffs; i++)
          bufferpool[i] = new Buffer();*/
    }
-   
+
    /**
     * Flushes the dirty buffers modified by the specified transaction.
     * @param txnum the transaction's id number
@@ -58,11 +56,11 @@ class BasicBufferMgr {
          buff.flush(); // write back to block
          */
    }
-   
+
    /**
-    * Pins a buffer to the specified block. 
+    * Pins a buffer to the specified block.
     * If there is already a buffer assigned to that block
-    * then that buffer is used;  
+    * then that buffer is used;
     * otherwise, an unpinned buffer from the pool is chosen.
     * Returns a null value if there are no available buffers.
     * @param blk a reference to a disk block
@@ -88,11 +86,11 @@ class BasicBufferMgr {
       buff.updateAccessTime();
       return buff;
    }
-   
+
    /**
     * Allocates a new block in the specified file, and
-    * pins a buffer to it. 
-    * Returns null (without allocating the block) if 
+    * pins a buffer to it.
+    * Returns null (without allocating the block) if
     * there are no available buffers.
     * @param filename the name of the file
     * @param fmtr a pageformatter object, used to format the new block
@@ -106,13 +104,12 @@ class BasicBufferMgr {
       numAvailable--;
       buff.pin();
 
-      Block newBlk = new Block(filename, fileMgr.size(filename));
-      bufferPoolMap.put(newBlk, buff);
+      bufferPoolMap.put(buff.block(), buff);
       buff.updateAccessTime();
 
       return buff;
    }
-   
+
    /**
     * Unpins the specified buffer.
     * @param buff the buffer to be unpinned
@@ -140,7 +137,7 @@ class BasicBufferMgr {
    synchronized Buffer getMapping (Block blk)   {
       return bufferPoolMap.get(blk);
    }
-   
+
    /**
     * Returns the number of available (i.e. unpinned) buffers.
     * @return the number of available buffers
@@ -148,7 +145,7 @@ class BasicBufferMgr {
    int available() {
       return numAvailable;
    }
-   
+
    private Buffer findExistingBuffer(Block blk) {
       return getMapping(blk);
       /*for (Buffer buff : bufferpool) {
@@ -158,7 +155,7 @@ class BasicBufferMgr {
       }
       return null;*/
    }
-   
+
    private Buffer chooseUnpinnedBuffer() {
 
       // If there is a buffer slot available, return this buffer

@@ -4,18 +4,15 @@ import simpledb.buffer.Buffer;
 import simpledb.buffer.BufferMgr;
 import simpledb.file.Block;
 import simpledb.file.FileMgr;
-import simpledb.file.Page;
 import simpledb.server.SimpleDB;
 
-
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
-// DUSTIN EXTRA IMPORT
-import java.nio.charset.Charset;
-import java.nio.ByteBuffer;
-
 import static simpledb.file.Page.*;
+
+// DUSTIN EXTRA IMPORT
 
 /**
  * The low-level log manager.
@@ -213,7 +210,7 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       currentpos += INT_SIZE;
    }
 
-   private void printLogPageBuffer(){
+   public void printLogPageBuffer() {
       //TODO: DUZN
 //      Write   a   method   called   “ printLogPageBuffer() ”   and   call   it   to   output   the   log   page   on   the console.   The   output   can   be   in   the   following   format.
 //      Buffer   number   pinned   to   the   log   block:   xxx
@@ -257,4 +254,5 @@ public class LogMgr implements Iterable<BasicLogRecord> {
 //      mypage.setInt(LAST_POS, pos);
       mybuf.setInt(LAST_POS, pos, currentLSN(), -1);
    }
+
 }
