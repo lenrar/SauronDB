@@ -6,7 +6,7 @@ An extended fork of SimpleDB (http://www.cs.bc.edu/~sciore/simpledb/).
 | Team Member   | Unity Id      |
 | :------------- | :------------- |
 | Dustin Lambright  | dalambri  |
-| Guanxu Yu  | ????gyu09????  |
+| Guanxu Yu  | gyu9  |
 | Darshan Bhandari | ????dbhandari???? |
 | Leonard Kerr | ????lwkerr???? |
 | Yuchen Sun | ????ysun34???? |
