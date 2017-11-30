@@ -92,10 +92,8 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     * @param lsn the LSN of a log record
     */
    public void flush(int lsn) {
-      printLogPageBuffer();
       if (lsn >= currentLSN())
          flush();
-      printLogPageBuffer();
    }
 
    /**
@@ -206,7 +204,9 @@ public class LogMgr implements Iterable<BasicLogRecord> {
        *
        * @author Leonard
        */
+      printLogPageBuffer();
       bufferMgr.flushAll(currentLSN());
+      printLogPageBuffer();
    }
 
    /**
@@ -279,11 +279,13 @@ public class LogMgr implements Iterable<BasicLogRecord> {
 
       ByteBuffer byteBuffer = mybuf.getContents();
       byte[] bb = new byte[byteBuffer.remaining()];
+      for(int i = 0; i < bb.length; i++){
+         bb[i] = byteBuffer.get(i);
+      }
       String s = new String(bb, StandardCharsets.UTF_8);
 
       System.out.println("  Contents of buffer:    " + s);
       System.out.print("  Values of buffer ints: ");
-
       for (int i = 0; i < bb.length; i++) {
          System.out.print(bb[i]);
       }
