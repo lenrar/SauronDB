@@ -68,9 +68,9 @@ public class LogMgr implements Iterable<BasicLogRecord> {
          currentblk = new Block(logfile, logsize - 1);
          // TODO: buf.pin(currentblk)
 //         mypage.read(currentblk);
-         //printLogPageBuffer();
+//         printLogPageBuffer();
          mybuf = bufferMgr.pin(currentblk);
-         //printLogPageBuffer();
+//         printLogPageBuffer();
          currentpos = getLastRecordPosition() + INT_SIZE;
       }
    }
@@ -83,8 +83,10 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     * @param lsn the LSN of a log record
     */
    public void flush(int lsn) {
+      printLogPageBuffer();
       if (lsn >= currentLSN())
          flush();
+      printLogPageBuffer();
    }
 
    /**
@@ -211,7 +213,6 @@ public class LogMgr implements Iterable<BasicLogRecord> {
    }
 
    public void printLogPageBuffer() {
-      //TODO: DUZN
 //      Write   a   method   called   “ printLogPageBuffer() ”   and   call   it   to   output   the   log   page   on   the console.   The   output   can   be   in   the   following   format.
 //      Buffer   number   pinned   to   the   log   block:   xxx
 //      Contents   of   buffer   xxx:
@@ -225,7 +226,7 @@ public class LogMgr implements Iterable<BasicLogRecord> {
 
 
       System.out.println("----------------------------------------------");
-      System.out.println("  Buffer number pinned to the log block: " + mybuf.getPins());
+      System.out.println("  Buffer number pinned to the log block: " + mybuf.block().number()); //.getPins());
 
       ByteBuffer byteBuffer = mybuf.getContents();
       byte[] bb = new byte[byteBuffer.remaining()];

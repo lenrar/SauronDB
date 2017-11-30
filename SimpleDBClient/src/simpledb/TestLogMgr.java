@@ -18,6 +18,7 @@ public class TestLogMgr {
          SimpleDB.init("studentdb");
 
          SimpleDB.logMgr().printLogPageBuffer();
+
       } catch (Exception e) {
          e.printStackTrace();
       }
