@@ -33,13 +33,19 @@ public class LogMgr implements Iterable<BasicLogRecord> {
    public static final int LAST_POS = 0;
 
    private String logfile;
-   // TODO: Make this a buffer buf
-//   private Page mypage = new Page();
+   /**
+    * Got rid of the fileMgr page and added a buffer to take its place. Also, added a reference to the buffer manager
+    * to pin blocks to buffers and a logformatter for when pinNew needs calling.
+    * - private Page mypage = new Page();
+    * + private Buffer mybuf;
+    * + private LogFormatter fmtr = new LogFormatter();
+    * + private BufferMgr bufferMgr = SimpleDB.bufferMgr();
+    *
+    * @author Leonard
+    */
    private Buffer mybuf;
-   private BufferMgr bufferMgr = SimpleDB.bufferMgr();
-
-   // TODO: Make a Log Formatter
    private LogFormatter fmtr = new LogFormatter();
+   private BufferMgr bufferMgr = SimpleDB.bufferMgr();
 
    private Block currentblk;
    private int currentpos;
@@ -66,11 +72,14 @@ public class LogMgr implements Iterable<BasicLogRecord> {
          appendNewBlock();
       } else {
          currentblk = new Block(logfile, logsize - 1);
-         // TODO: buf.pin(currentblk)
-//         mypage.read(currentblk);
-         //printLogPageBuffer();
+         /*
+          * Converted from page to buffer. Read is equivalent to pin
+          * - mypage.read(currentblk);
+          * + mybuf = bufferMgr.pin(currentblk);
+          *
+          * @author Leonard
+          */
          mybuf = bufferMgr.pin(currentblk);
-         //printLogPageBuffer();
          currentpos = getLastRecordPosition() + INT_SIZE;
       }
    }
@@ -113,8 +122,7 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       for (Object obj : rec)
          recsize += size(obj);
       if (currentpos + recsize >= BLOCK_SIZE) { // the log record doesn't fit,
-         // TODO: flush() will not be necessary
-//         flush();        // so move to the next block.
+         flush();        // so move to the next block.
          appendNewBlock();
       }
       for (Object obj : rec) {
@@ -132,12 +140,24 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     */
    private void appendVal(Object val) {
       if (val instanceof String) {
-         // TODO: buf.setString(currentpos, (String) val, currentLSN(), -1)
-//         mypage.setString(currentpos, (String) val);
+         /*
+          * Converted from page to buffer, notice LSN of -1 to denote this action doesn't need logging. (Avoid infinite
+          * loop)
+          * - mypage.setString(currentpos, (String) val);
+          * + mybuf.setString(currentpos, (String) val, currentLSN(), -1);
+          *
+          * @author Leonard
+          */
          mybuf.setString(currentpos, (String) val, currentLSN(), -1);
       } else {
-         // TODO: buf.setInt(currentpos, (Integer) val, currentLSN(), -1)
-//         mypage.setInt(currentpos, (Integer) val);
+         /*
+          * Converted from page to buffer, notice LSN of -1 to denote this action doesn't need logging. (Avoid infinite
+          * loop)
+          * - mypage.setInt(currentpos, (Integer) val);
+          * + mybuf.setInt(currentpos, (Integer) val, currentLSN(), -1);
+          *
+          * @author Leonard
+          */
          mybuf.setInt(currentpos, (Integer) val, currentLSN(), -1);
       }
       currentpos += size(val);
@@ -165,7 +185,6 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     * @return the LSN of the most recent log record
     */
    private int currentLSN() {
-      // TODO: Set LSN to -1 if there isn't a block here
       return currentblk.number();
    }
 
@@ -173,8 +192,13 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     * Writes the current page to the log file.
     */
    private void flush() {
-      // TODO: buffMgr.flushAll(currentLSN())
-//      mypage.write(currentblk);
+      /*
+       * Converted from page logic to buffer logic, flushAll accomplishes the same thing as write
+       * - mypage.write(currentblk);
+       * + bufferMgr.flushAll(currentLSN());
+       *
+       * @author Leonard
+       */
       bufferMgr.flushAll(currentLSN());
    }
 
@@ -182,11 +206,19 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     * Clear the current page, and append it to the log file.
     */
    private void appendNewBlock() {
-       // TODO: Not necessary to call setLastRecordPosition
+      /*
+       * Converted from page logic to buffer logic, pinning a new block for the file. Moved setLastRecordPosition to the
+       * last line since currentblk is undefined before that.
+       * - currentblk = mypage.append(logfile);
+       * + if (mybuf != null) {
+       * +    bufferMgr.unpin(mybuf);
+       * + }
+       * + mybuf = bufferMgr.pinNew(logfile, fmtr);
+       * + currentblk = mybuf.block();
+       *
+       * @author Leonard
+       */
       currentpos = INT_SIZE;
-      // TODO: buf.pinNew(logfile, LogFormatter)
-      // TODO: Make LogFormatter
-//      currentblk = mypage.append(logfile);
       if (mybuf != null) {
          bufferMgr.unpin(mybuf);
       }
@@ -203,13 +235,25 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     * is the offset of the integer for the last log record in the page.
     */
    private void finalizeRecord() {
-      // TODO: buf.setInt(currentpos, getLastRecordPosition(), currentLSN(), -1)
-//      mypage.setInt(currentpos, getLastRecordPosition());
+      /*
+       * Converted from page to buffer, notice LSN of -1 to denote this action doesn't need logging. (Avoid infinite
+       * loop)
+       * - mypage.setInt(currentpos, getLastRecordPosition());
+       * + mybuf.setInt(currentpos, getLastRecordPosition(), currentLSN(), -1);
+       *
+       * @author Leonard
+       */
       mybuf.setInt(currentpos, getLastRecordPosition(), currentLSN(), -1);
       setLastRecordPosition(currentpos);
       currentpos += INT_SIZE;
    }
 
+   /**
+    * A function to print the contents of the buffer associated with the log.
+    * + Added entire printLogPageBuffer function.
+    *
+    * @author Dustin
+    */
    public void printLogPageBuffer() {
       //TODO: DUZN
 //      Write   a   method   called   “ printLogPageBuffer() ”   and   call   it   to   output   the   log   page   on   the console.   The   output   can   be   in   the   following   format.
@@ -234,7 +278,7 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       System.out.println("  Contents of buffer:    " + s);
       System.out.print("  Values of buffer ints: ");
 
-      for ( int i = 0; i < bb.length; i ++){
+      for (int i = 0; i < bb.length; i++) {
          System.out.print(bb[i]);
       }
 
@@ -244,14 +288,25 @@ public class LogMgr implements Iterable<BasicLogRecord> {
    }
 
    private int getLastRecordPosition() {
-      // TODO: buf.getInt(LAST_POS)
-//      return mypage.getInt(LAST_POS);
+      /*
+       * Converted from page to buffer
+       * - return mypage.getInt(LAST_POS);
+       * + return mybuf.getInt(LAST_POS);
+       *
+       * @author Leonard
+       */
       return mybuf.getInt(LAST_POS);
    }
 
    private void setLastRecordPosition(int pos) {
-      // TODO: buf.setInt(LAST_POS, pos, currentLSN(), -1)
-//      mypage.setInt(LAST_POS, pos);
+      /*
+       * Converted from page to buffer, notice LSN of -1 to denote this action doesn't need logging. (Avoid infinite
+       * loop)
+       * - mypage.setInt(LAST_POS, pos);
+       * + mybuf.setInt(LAST_POS, pos, currentLSN(), -1);
+       *
+       * @author Leonard
+       */
       mybuf.setInt(LAST_POS, pos, currentLSN(), -1);
    }
 

@@ -1,23 +1,33 @@
 package simpledb;
 
+import simpledb.buffer.Buffer;
+import simpledb.buffer.BufferMgr;
+import simpledb.file.Block;
+import simpledb.log.LogMgr;
 import simpledb.server.SimpleDB;
 
-/* This is a version of the StudentMajor program that
- * accesses the SimpleDB classes directly (instead of
- * connecting to it as a JDBC client).  You can run it
- * without having the server also run.
- *
- * These kind of programs are useful for debugging
- * your changes to the SimpleDB source code.
- */
+import java.io.File;
+import java.io.PrintStream;
 
 public class TestLogMgr {
    public static void main(String[] args) {
       try {
          // analogous to the driver
-         SimpleDB.init("studentdb");
+         SimpleDB.init("simpleDB");
+         File file = new File("filename.txt");
+         PrintStream out = new PrintStream(file);
+         out.println(22);
+         Block blk = new Block("filename.txt", 1);
+         BufferMgr bufferMgr = SimpleDB.bufferMgr();
+         LogMgr logMgr = SimpleDB.logMgr();
 
-         SimpleDB.logMgr().printLogPageBuffer();
+         Buffer buf = bufferMgr.pin(blk);
+         buf.setInt(1, 1, 1, 1);
+         bufferMgr.unpin(buf);
+         bufferMgr.flushAll(1);
+
+         logMgr.printLogPageBuffer();
+         file.delete();
       } catch (Exception e) {
          e.printStackTrace();
       }
