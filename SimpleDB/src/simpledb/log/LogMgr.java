@@ -204,9 +204,14 @@ public class LogMgr implements Iterable<BasicLogRecord> {
        *
        * @author Leonard
        */
+      System.out.println("");
+      System.out.println("Before Flush:");
       printLogPageBuffer();
       bufferMgr.flushAll(currentLSN());
+      System.out.println("");
+      System.out.println("After Flush:");
       printLogPageBuffer();
+
    }
 
    /**
@@ -275,7 +280,8 @@ public class LogMgr implements Iterable<BasicLogRecord> {
 
 
       System.out.println("----------------------------------------------");
-      System.out.println("  Buffer number pinned to the log block: " + mybuf.block().number()); //.getPins());
+      System.out.println("  Buffer number pinned to the log block: " + mybuf.block().number());
+
 
       ByteBuffer byteBuffer = mybuf.getContents();
       byte[] bb = new byte[byteBuffer.remaining()];
@@ -289,6 +295,7 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       for (int i = 0; i < bb.length; i++) {
          System.out.print(bb[i]);
       }
+
 
       System.out.println("");
 
