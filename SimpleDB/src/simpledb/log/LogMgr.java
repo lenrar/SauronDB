@@ -124,7 +124,12 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       for (Object obj : rec)
          recsize += size(obj);
       if (currentpos + recsize >= BLOCK_SIZE) { // the log record doesn't fit,
-         flush();        // so move to the next block.
+         /*
+          * Removed flush because it is now handled in appendNewBlock
+          * - flush();
+          *
+          * @author Leonard
+          */
          appendNewBlock();
       }
       for (Object obj : rec) {
