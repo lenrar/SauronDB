@@ -150,10 +150,22 @@ class BasicBufferMgr {
       return numAvailable;
    }
 
+   /**
+    *   Returns the buffer that the map maps the specified block to.
+    *   @paramblk the block to use as a key
+    *   @return the buffer mapped to this block
+    *   @author Guanxu Yu
+    */
    private Buffer findExistingBuffer(Block blk) {
       return getMapping(blk);
    }
 
+   /**
+    *   Returns the buffer that is unpinned. Change function to work with map
+    *   and replace buffer based on LRU policy
+    *   @return the replacing buffer
+    *   @author Yuchen Sun
+    */
    private Buffer chooseUnpinnedBuffer() {
 
       // If there is a buffer slot available, return this buffer
@@ -184,8 +196,10 @@ class BasicBufferMgr {
 
    /**
     * Add a function LRU2()
-    * Choose replace buffer by using LRU(K=2)
-    * @author
+    * Choose replacing buffer by using LRU(K=2)
+    * @param unpinnedBufferBlockList list of blocks that mapping unpinned buffers
+    * @return block that mapping the chosen buffer
+    * @author Yuchen Sun
     */
    private Block LRU2(ArrayList<Block> unpinnedBufferBlockList) {
       int infiCount = 0;

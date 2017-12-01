@@ -23,7 +23,7 @@ public class Buffer {
    /**
     * Add two variables to record last/second last access time,
     * initialized to infinity
-    * @author
+    * @author Yuchen Sun
     */
    private long lastAccessTime = Long.MAX_VALUE;
    private long secLastAccessTime = Long.MAX_VALUE;
@@ -199,7 +199,7 @@ public class Buffer {
    /**
     * Add a function updateAccessTime()
     * Update access time when a buffer is pinned
-    * @author
+    * @author Yuchen Sun
     */
    void updateAccessTime() {
       //long timestamp = System.currentTimeMillis();
@@ -211,9 +211,8 @@ public class Buffer {
    /**
     * Add a function getLastAccessTime()
     * get lastAccessTime
-    * @author
+    * @author Yuchen Sun
     */
-
    long getLastAccessTime() {
       return lastAccessTime;
    }
@@ -221,7 +220,7 @@ public class Buffer {
    /**
     * Add a function getSecLastAccessTime()
     * get secLastAccessTime
-    * @author
+    * @author Yuchen Sun
     */
    long getSecLastAccessTime() {
       return secLastAccessTime;
@@ -230,7 +229,7 @@ public class Buffer {
    /**
     * Add a function resetAccessTime()
     * Reset access time to MAX_VALUE
-    * @author
+    * @author Yuchen Sun
     */
    void resetAccessTime() {
       lastAccessTime = Long.MAX_VALUE;
