@@ -9,10 +9,10 @@ import simpledb.server.SimpleDB;
 
 import static junit.framework.TestCase.assertEquals;
 
-public class TestBuff {
+public class TestBufferMgr {
     @Before
     public void setUp() throws Exception {
-        SimpleDB.init("DDB1");
+        SimpleDB.init("sampleDatabase");
     }
 
     @After
