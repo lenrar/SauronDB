@@ -48,11 +48,11 @@ public class BufferMgr {
     * @return the buffer pinned to that block
     */
    public synchronized Buffer pin(Block blk) {
-      System.out.println("------------------------------");
+      /*System.out.println("------------------------------");
       System.out.println("In pin");
       System.out.println("Filename is: " + blk.fileName());
       System.out.println("Block number is: " + blk.number());
-      System.out.println("--------------------------------");
+      System.out.println("--------------------------------");*/
       try {
          long timestamp = System.currentTimeMillis();
          Buffer buff = bufferMgr.pin(blk);
@@ -103,11 +103,11 @@ public class BufferMgr {
     */
    public synchronized void unpin(Buffer buff) {
 
-      System.out.println("**********************");
+      /*System.out.println("**********************");
       System.out.println("In unpin");
       System.out.println("Filename is: " + buff.block().fileName());
       System.out.println("Block Number is: " + buff.block().number());
-      System.out.println("**********************");
+      System.out.println("**********************");*/
 
       bufferMgr.unpin(buff);
       if (!buff.isPinned())

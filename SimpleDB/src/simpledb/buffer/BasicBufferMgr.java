@@ -179,6 +179,7 @@ class BasicBufferMgr {
          return null;
       }
       Block tmp = LRU2(unpinnedBufferBlockList);
+      System.out.println("Replace the buffer contains block " + tmp.number() + " in " + tmp.fileName());
       Buffer buff = bufferPoolMap.get(tmp);
       buff.resetAccessTime();
       bufferPoolMap.remove(tmp);
