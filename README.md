@@ -29,6 +29,18 @@ This is a new class which implements PageFormatter to satisfy the need for a Pag
 #### getContents() method
 * This is a wrapper method to get the contents of the pinned block for the printLogPageBuffer() method
 
+## BasicBufferMgr.java
+#### BasicBufferMgr()
+* This is the constructor of BasicBufferMgr class. Since we changed the bufferpoll into map, so we changed how bufferpool initialized at constructor.
+#### flushAll() method
+* Rewrite this method to fit map structure
+#### pinNew() method
+* Rewrite this method to fit map structure
+#### containsMapping() method
+* Used for testing
+#### getMapping() method
+* Used for testing
+
 # How to run the test scenarios
 
 ## Log Manager:
