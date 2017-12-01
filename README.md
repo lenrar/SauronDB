@@ -35,3 +35,6 @@ This is a new class which implements PageFormatter to satisfy the need for a Pag
 * in lines DUZN and DUZN of LogMgr.java we have hard-coded print statements for the pinned block to prove functionality before and after flush.  If you want to avoid these statements, feel free to comment them out.
 
 * We've written TestLogMgr to show the use of pinned blocks.  If you run TestLogMgr many times, you will see that the block pinned to the buffer increases (Displayed like so: Buffer number pinned to the log block: 14)
+
+## Buffer Manager:
+* In TestBufferMgr.java file, we already setup testcase for Buffer Manager. And also we add comments and hard-code print statements to indicate what our testcase looks like. You just need to run it and see the result.
