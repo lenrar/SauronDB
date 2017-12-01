@@ -13,15 +13,21 @@ An extended fork of SimpleDB (http://www.cs.bc.edu/~sciore/simpledb/).
 
 # Files Changed - Add these on your own, lads!
 
+## SimpleDB.java
+#### initFileLogAndBufferMgr() method
+* Updated such that the buffermanager is initialized before the log manager so that the log manager can use the buffer manager to pin blocks.
+
 ## LogMgr.java
+Changed all methods to now use buffers from the buffer manager instead of pages.
 #### printLogPageBuffer() method
 * This is the optional print method to view the changes made to the pinned block
+
+## LogFormatter.java
+This is a new class which implements PageFormatter to satisfy the need for a PageFormatter in the pinNew method. This is essentially an empty class.
 
 ## Buffer.java
 #### getContents() method
 * This is a wrapper method to get the contents of the pinned block for the printLogPageBuffer() method
-
-
 
 # How to run the test scenarios
 
