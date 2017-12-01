@@ -249,4 +249,16 @@ class BasicBufferMgr {
       }
       return res;
    }
+
+
+   public synchronized void showBuffer() {
+      for (Block blk : bufferPoolMap.keySet()) {
+
+         System.out.println("=======================");
+         System.out.println("Show block in buffer");
+         System.out.println("Filename: " + blk.fileName());
+         System.out.println("Block Num: " + blk.number());
+         System.out.println("Is pinned? : " + bufferPoolMap.get(blk).isPinned());
+      }
+   }
 }
