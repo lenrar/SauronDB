@@ -1,6 +1,6 @@
 package simpledb.log;
 
-import simpledb.buffer.Buffer;
+import simpledb.file.Page;
 
 import static simpledb.file.Page.INT_SIZE;
 import static simpledb.file.Page.STR_SIZE;
@@ -14,55 +14,31 @@ import static simpledb.file.Page.STR_SIZE;
  * sequentially.
  * Thus the client is responsible for knowing how many values
  * are in the log record, and what their types are.
- *
  * @author Edward Sciore
  */
 public class BasicLogRecord {
-   /**
-    * Here I replaced the page attribute with a Buffer from the BufferMgr
-    * - private Page pg;
-    * + private Buffer buf;
-    *
-    * @author Leonard
-    */
-   private Buffer buf;
+   private Page pg;
    private int pos;
 
    /**
     * A log record located at the specified position of the specified page.
     * This constructor is called exclusively by
     * {@link LogIterator#next()}.
-    *
-    * @param buf the page containing the log record
+    * @param pg the page containing the log record
     * @param pos the position of the log record
     */
-   public BasicLogRecord(Buffer buf, int pos) {
-      /*
-       * Replaced page initialization with buffer initialization
-       * - this.pg = pg
-       * + this.buf = buf
-       *
-       * @author Leonard
-       */
-      this.buf = buf;
+   public BasicLogRecord(Page pg, int pos) {
+      this.pg = pg;
       this.pos = pos;
    }
 
    /**
     * Returns the next value of the current log record,
     * assuming it is an integer.
-    *
     * @return the next value of the current log record
     */
    public int nextInt() {
-      /*
-       * Replaced pg with buffer so that buffer is used
-       * - int result = pg.getInt(pos);
-       * + int result = buf.getInt(pos);
-       *
-       * @author Leonard
-       */
-      int result = buf.getInt(pos);
+      int result = pg.getInt(pos);
       pos += INT_SIZE;
       return result;
    }
@@ -70,18 +46,10 @@ public class BasicLogRecord {
    /**
     * Returns the next value of the current log record,
     * assuming it is a string.
-    *
     * @return the next value of the current log record
     */
    public String nextString() {
-      /*
-       * Replaced pg with buffer so that buffer is used
-       * - String result = pg.getString(pos);
-       * + String result = buf.getString(pos);
-       *
-       * @author Leonard
-       */
-      String result = buf.getString(pos);
+      String result = pg.getString(pos);
       pos += STR_SIZE(result.length());
       return result;
    }
