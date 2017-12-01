@@ -102,6 +102,12 @@ public class BufferMgr {
          notifyAll();
    }
 
+
+   /**
+    *  This function is used for testing. It shows all blocks in the buffer pool
+    *
+    *  @author Guanxu Yu
+    */
    public synchronized void showBuffer() {
       bufferMgr.showBuffer();
    }
@@ -120,7 +126,10 @@ public class BufferMgr {
    /**
     *   Returns the buffer that the map maps the specified block to.
     *   @paramblk the block to use as a key
-    *   @return the buffer mapped to if there is a mapping;   null otherwise */
+    *   @return the buffer mapped to if there is a mapping;   null otherwise
+    *
+    *   @author Guanxu Yu
+    */
    public Buffer getMapping (Block blk) {
       return bufferMgr.getMapping(blk);
    }

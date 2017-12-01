@@ -33,7 +33,7 @@ import static junit.framework.TestCase.assertEquals;
  * them twice. So now according LRU(2), once we pin a new block, the buffer contains block 7 should be replaced from buffer pool.
  * Then we unpin block 3, 4, 5, 6, so their distance should be infinity at this time. Then we should apply LRU to buffers whose
  * distance is infinity. In this case, we should replace block 3 when we pin a new block.
- * 
+ *
  * @author Guanxu Yu
  */
 
@@ -41,10 +41,6 @@ public class TestBufferMgr {
     @Before
     public void setUp() throws Exception {
         SimpleDB.init("sampleDatabase");
-    }
-
-    @After
-    public void tearDown() throws Exception {
     }
 
     @Test

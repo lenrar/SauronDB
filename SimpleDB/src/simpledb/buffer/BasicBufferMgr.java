@@ -31,6 +31,11 @@ class BasicBufferMgr {
     * @param numbuffs the number of buffer slots to allocate
     */
    BasicBufferMgr(int numbuffs) {
+
+      /**
+       * Initialize bufferPoolMap and set numAvailable and newBuffers into numbuffs
+       * @author Guanxu Yu
+       */
       bufferPoolMap = new HashMap<>();
       numAvailable = numbuffs;
       newBuffers = numbuffs;
@@ -41,6 +46,11 @@ class BasicBufferMgr {
     * @param txnum the transaction's id number
     */
    synchronized void flushAll(int txnum) {
+
+      /**
+       * Use bufferPoolMap to flush all dirty buffers
+       * @author Guanxu Yu
+       */
       for (Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
          Buffer buff = entry.getValue();
          if (buff.isModifiedBy(txnum))
@@ -116,6 +126,7 @@ class BasicBufferMgr {
     *   the block to some buffer.
     *   @paramblk the block to use as a key
     *   @return true if there is a mapping; false otherwise
+    *   @author Guanxu Yu
     */
    synchronized boolean containsMapping (Block blk) {
       return bufferPoolMap.containsKey(blk);
@@ -124,7 +135,9 @@ class BasicBufferMgr {
    /**
     *   Returns the buffer that the map maps the specified block to.
     *   @paramblk the block to use as a key
-    *   @return the buffer mapped to if there is a mapping; null otherwise */
+    *   @return the buffer mapped to if there is a mapping; null otherwise
+    *   @author Guanxu Yu
+    */
    synchronized Buffer getMapping (Block blk)   {
       return bufferPoolMap.get(blk);
    }
@@ -205,6 +218,11 @@ class BasicBufferMgr {
       return res;
    }
 
+
+   /**
+    * Used to for testing. Just show all blocks in the buffer pool.
+    * @author Guanxu Yu
+    */
 
    public synchronized void showBuffer() {
       for (Block blk : bufferPoolMap.keySet()) {
