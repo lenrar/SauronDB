@@ -9,6 +9,34 @@ import simpledb.server.SimpleDB;
 
 import static junit.framework.TestCase.assertEquals;
 
+
+/**
+ * Test file of Buffer Manager
+ *
+ * Testing scenarios
+ *
+ * 1. Create a list of files-blocks. In this case, we create 10 file blocks
+ *
+ * 2. Check the number of available buffers initially. All but one should be available as only
+ * one of them has been pinned by th e logmgr yet. The initial buffer pool size is 8. After initialization phase,
+ * only 7 buffers should be available.
+ *
+ * 3. Keep pinning buffers one by one and check the number of available buffers.
+ *
+ * 4. When all buffers have been pinned, if pin request is made again, throw an exception
+ *
+ * 6. Unpin a few buffers and see if you are still getting an exception or not. Here we unpin buffers contain block 0, 1, 2.
+ * Then we pin block 7, 8, 9 again.
+ *
+ * 7. Try to pin a new buffer again, and check your replacement policy while seeing which currently unpinned buffer is replaced.
+ * Now, all buffers in buffer pool have been pined and only been pined once. At this time, we pin block 7, 8, 9 again then unpin
+ * them twice. So now according LRU(2), once we pin a new block, the buffer contains block 7 should be replaced from buffer pool.
+ * Then we unpin block 3, 4, 5, 6, so their distance should be infinity at this time. Then we should apply LRU to buffers whose
+ * distance is infinity. In this case, we should replace block 3 when we pin a new block.
+ * 
+ * @author Guanxu Yu
+ */
+
 public class TestBufferMgr {
     @Before
     public void setUp() throws Exception {
