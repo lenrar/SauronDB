@@ -14,7 +14,6 @@ import java.util.Map;
  */
 class BasicBufferMgr {
    private Map<Block, Buffer> bufferPoolMap;
-   private Buffer[] bufferpool;
    private int numAvailable;
    private int newBuffers;
 
@@ -35,10 +34,6 @@ class BasicBufferMgr {
       bufferPoolMap = new HashMap<>();
       numAvailable = numbuffs;
       newBuffers = numbuffs;
-      /*bufferpool = new Buffer[numbuffs];
-      numAvailable = numbuffs;
-      for (int i=0; i<numbuffs; i++)
-         bufferpool[i] = new Buffer();*/
    }
 
    /**
@@ -51,10 +46,6 @@ class BasicBufferMgr {
          if (buff.isModifiedBy(txnum))
             buff.flush();
       }
-      /*for (Buffer buff : bufferpool)
-         if (buff.isModifiedBy(txnum))
-         buff.flush(); // write back to block
-         */
    }
 
    /**
@@ -148,12 +139,6 @@ class BasicBufferMgr {
 
    private Buffer findExistingBuffer(Block blk) {
       return getMapping(blk);
-      /*for (Buffer buff : bufferpool) {
-         Block b = buff.block();
-         if (b != null && b.equals(blk))
-            return buff;
-      }
-      return null;*/
    }
 
    private Buffer chooseUnpinnedBuffer() {
@@ -169,9 +154,7 @@ class BasicBufferMgr {
       for (Map.Entry<Block, Buffer> entry : bufferPoolMap.entrySet()) {
          Buffer buff = entry.getValue();
          if (!buff.isPinned()) {
-            //bufferPoolMap.remove(entry.getKey());
             unpinnedBufferBlockList.add(entry.getKey());
-            //return buff;
          }
       }
       // No unpinned buffer
@@ -184,11 +167,6 @@ class BasicBufferMgr {
       buff.resetAccessTime();
       bufferPoolMap.remove(tmp);
       return buff;
-
-      /*for (Buffer buff : bufferpool)
-         if (!buff.isPinned())
-         return buff;
-      return null;*/
    }
 
    /**
@@ -202,19 +180,9 @@ class BasicBufferMgr {
       long minSecLastAccTime = Long.MAX_VALUE;
       int LRU2Index = -1;
       int LRUIndex = -1;
-      /*
-      System.out.println(unpinnedBufferBlockList.size());
-      System.out.println(minLastAccTime);
-      System.out.println(minSecLastAccTime);
-      */
 
       for (int i = 0; i < unpinnedBufferBlockList.size(); i++) {
          Buffer buff = bufferPoolMap.get(unpinnedBufferBlockList.get(i));
-         /*
-         System.out.println("index: " + i);
-         System.out.print("last: " + buff.getLastAccessTime() + " ");
-         System.out.println("seclast: " + buff.getSecLastAccessTime());
-         */
          if (buff.getSecLastAccessTime() <= minSecLastAccTime) {
             minSecLastAccTime = buff.getSecLastAccessTime();
             LRU2Index = i;
@@ -226,22 +194,8 @@ class BasicBufferMgr {
                LRUIndex = i;
             }
          }
-
-//         if (buff.getLastAccessTime() < minLastAccTime) {
-//            minLastAccTime = buff.getLastAccessTime();
-//            LRUIndex = i;
-//         }
-         /*
-         System.out.print("minlast: " + minLastAccTime + " ");
-         System.out.println("minsec: " + minSecLastAccTime);
-         */
       }
       Block res;
-      /*
-      System.out.println("inficount: " + infiCount);
-      System.out.println("LRUIndex: " + LRUIndex);
-      System.out.println("LRU2Index: " + LRU2Index);
-      */
       if (infiCount >= 1) {
          res = unpinnedBufferBlockList.get(LRUIndex);
       }
