@@ -71,11 +71,10 @@ public class SimpleDB {
    
    /**
     * Initializes the file, log, and buffer managers.
+    * BufferManager is initialized before LogManager
     * @param dirname the name of the database directory
     */
    public static void initFileLogAndBufferMgr(String dirname) {
-      // TODO: Make bufferMgr initialize before logMgr
-//      initFileAndLogMgr(dirname);
       fm = new FileMgr(dirname);
       bm = new BufferMgr(BUFFER_SIZE);
       logm = new LogMgr(LOG_FILE);
